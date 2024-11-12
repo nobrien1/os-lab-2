@@ -24,7 +24,7 @@ sem_t tobacco, paper, match;
 sem_t tobaccoSem, paperSem, matchSem;
 sem_t mutex;
 
-// Shared flags to check if an ingredient is on the table
+// Bools for each ingredient
 bool isTobacco = false, isPaper = false, isMatch = false;
 
 // Function to sleep thread for random amount of time: 0 <= t < max_ms
@@ -94,12 +94,12 @@ void *agentMatchTobacco(void *arg)
 }
 
 // Pusher function thread
-void *pusher_tobacco(void *arg)
+void *pusherTobacco(void *arg)
 {
     for (int i = 0; i < 12; i++)
     {
-        sem_wait(&tobacco); // Wait for tobacco on the table
-        sem_wait(&mutex);   // Lock to check shared flags
+        sem_wait(&tobacco);
+        sem_wait(&mutex);
         if (isPaper)
         {
             isPaper = 0;
@@ -119,7 +119,7 @@ void *pusher_tobacco(void *arg)
     pthread_exit(NULL);
 }
 
-void *pusher_paper(void *arg)
+void *pusherPaper(void *arg)
 {
     for (int i = 0; i < 12; i++)
     {
@@ -144,7 +144,7 @@ void *pusher_paper(void *arg)
     pthread_exit(NULL);
 }
 
-void *pusher_match(void *arg)
+void *pusherMatch(void *arg)
 {
     for (int i = 0; i < 12; i++)
     {
@@ -229,9 +229,9 @@ int main()
     pthread_create(&agents[1], NULL, agentPaperMatch, NULL);
     pthread_create(&agents[2], NULL, agentMatchTobacco, NULL);
 
-    pthread_create(&pushers[0], NULL, pusher_match, NULL);
-    pthread_create(&pushers[1], NULL, pusher_tobacco, NULL);
-    pthread_create(&pushers[2], NULL, pusher_paper, NULL);
+    pthread_create(&pushers[0], NULL, pusherMatch, NULL);
+    pthread_create(&pushers[1], NULL, pusherTobacco, NULL);
+    pthread_create(&pushers[2], NULL, pusherPaper, NULL);
 
     pthread_create(&smokers[0], NULL, smoker, (void *)TOBACCO);
     pthread_create(&smokers[1], NULL, smoker, (void *)PAPER);
